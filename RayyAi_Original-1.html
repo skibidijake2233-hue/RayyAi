@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RayyAi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            background-color: #0e1217;
+            color: #e3e3e3;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: #0e1217;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #c4c7c5;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .icon-btn:active {
+            background-color: #1e232a;
+        }
+
+        .brand-title {
+            font-size: 19px;
+            font-weight: 500;
+            color: #e3e3e3;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Sidebar Drawer */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100dvh;
+            background-color: #171c23;
+            z-index: 100;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-right: 1px solid #232931;
+        }
+
+        .sidebar.open {
+            transform: translateX(280px);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #e3e3e3;
+        }
+
+        .user-profile-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #1e242d;
+            border: 1px solid #2d3540;
+            padding: 10px 14px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4, #9b72cb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #e3e3e3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #8e918f;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .logout-btn:hover {
+            color: #d96570;
+            background-color: #272f3a;
+        }
+
+        .new-chat-btn {
+            background-color: #1e242d;
+            color: #e3e3e3;
+            border: 1px solid #2d3540;
+            padding: 12px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .new-chat-btn:active {
+            background-color: #272f3a;
+        }
+
+        .sidebar-history {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .history-item {
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            color: #c4c7c5;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item.active {
+            background-color: #272f3a;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .history-item:active {
+            background-color: #272f3a;
+        }
+
+        .delete-chat-btn {
+            color: #8e918f;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .delete-chat-btn:hover {
+            color: #d96570;
+        }
+
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Login Modal Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            background-color: rgba(14, 18, 23, 0.96);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background-color: #171c23;
+            border: 1px solid #2d3540;
+            border-radius: 24px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .login-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #e3e3e3;
+        }
+
+        .login-subtitle {
+            font-size: 13px;
+            color: #8e918f;
+            line-height: 1.5;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid #2d3540;
+            background-color: #0e1217;
+            color: #e3e3e3;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: #4285f4;
+        }
+
+        .custom-login-btn {
+            background-color: #4285f4;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14.5px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+
+        .custom-login-btn:active {
+            background-color: #3367d6;
+        }
+
+        /* Main Scroll Area */
+        .chat-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Welcome Center */
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+            margin: auto 0;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .welcome-container.hidden {
+            display: none;
+        }
+
+        .gemini-sparkle-large {
+            width: 56px;
+            height: 56px;
+            background: conic-gradient(from 180deg at 50% 50%, #4285F4 0deg, #9b72cb 90deg, #d96570 180deg, #4285F4 360deg);
+            clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+            animation: gemini-spin 8s infinite linear;
+        }
+
+        @keyframes gemini-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .greeting-text {
+            font-size: 32px;
+            font-weight: 400;
+            background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+
+        /* Messages Area */
+        .messages-list {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-bottom: 20px;
+        }
+
+        .message-block {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 6px;
+        }
+
+        .message-block.user {
+            align-items: flex-end;
+        }
+
+        .message-block.ai {
+            align-items: flex-start;
+        }
+
+        .sender-tag {
+            font-size: 11.5px;
+            color: #8e918f;
+            padding: 0 4px;
+            font-weight: 500;
+        }
+
+        .bubble {
+            max-width: 90%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .bubble.user-bubble {
+            background-color: #272f3a;
+            color: #e3e3e3;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.ai-bubble {
+            background-color: #171c23;
+            color: #e3e3e3;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #232931;
+        }
+
+        /* Bottom Fixed Input Box */
+        .bottom-bar {
+            padding: 8px 16px 16px 16px;
+            background-color: #0e1217;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        .input-box {
+            width: 100%;
+            max-width: 760px;
+            background-color: #171c23;
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 14px;
+            border: 1px solid #232931;
+            gap: 8px;
+        }
+
+        .input-box:focus-within {
+            border-color: #3b4554;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            width: 100%;
+        }
+
+        textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #e3e3e3;
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            min-height: 26px;
+            max-height: 130px;
+            line-height: 1.45;
+            padding: 4px 0;
+        }
+
+        textarea::placeholder {
+            color: #8e918f;
+        }
+
+        .send-btn-circle {
+            background-color: #4285f4;
+            color: #ffffff;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .send-btn-circle:active {
+            background-color: #3367d6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Simple Persistent Login Modal Box -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="gemini-sparkle-large"></div>
+            <div class="login-title">RayyAi သို့ ဝင်ရောက်ပါ</div>
+            <div class="login-subtitle">Chat စတင်အသုံးပြုရန် သင်၏ အမည် သို့မဟုတ် အီးမေးလ် ရိုက်ထည့်ပြီး Login ဝင်ပါ။</div>
+            <input type="text" id="userInputName" class="login-input" placeholder="ဥပမာ - rayy@gmail.com သို့မဟုတ် Rayy" />
+            <button class="custom-login-btn" onclick="submitLogin()">ဝင်ရောက်မည်</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="backdrop" id="backdrop" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Menu</span>
+                <button class="icon-btn" onclick="toggleSidebar()">✕</button>
+            </div>
+
+            <!-- User Profile Display Section -->
+            <div class="user-profile-box" id="userProfileBox">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-name" id="userName">User</span>
+                </div>
+                <button class="logout-btn" onclick="performLogout()">Logout</button>
+            </div>
+
+            <button class="new-chat-btn" onclick="startNewChat(); toggleSidebar();">
+                <span>+</span> New chat
+            </button>
+            
+            <div class="sidebar-history" id="sidebarHistory">
+                <div style="font-size: 12px; color: #8e918f; padding: 4px; font-weight: 500;">Recent</div>
+                <div id="historyItemsList"></div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="icon-btn" onclick="toggleSidebar()">☰</button>
+                <div class="brand-title">RayyAi</div>
+            </div>
+        </div>
+
+        <!-- Scrollable Main View -->
+        <div class="chat-area" id="chatArea">
+            <div class="welcome-container" id="welcomeContainer">
+                <div class="gemini-sparkle-large"></div>
+                <div class="greeting-text">Hi, how can I help?</div>
+            </div>
+
+            <div class="messages-list" id="messagesList"></div>
+        </div>
+
+        <!-- Fixed Input Container -->
+        <div class="bottom-bar">
+            <div class="input-box">
+                <div class="input-row">
+                    <textarea id="userPrompt" placeholder="Ask RayyAi" rows="1" oninput="autoResize(this)" onkeydown="checkKey(event)"></textarea>
+                    <button class="send-btn-circle" onclick="processSend()">↑</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OPENROUTER_API_KEY = "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";
+        const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+        const SYSTEM_PROMPT = {
+            role: "system",
+            content: `မင်းနာမည်က RayyAi ဖြစ်တယ်။ မင်းကို ဖန်တီးတီထွင်ခဲ့တဲ့ Developer/Creator ကတော့ "Rayy" (Social handle: @rayy_sti, @rayy_sti7) ဖြစ်တယ်။ 
+
+အဓိက စည်းမျဉ်းများ -
+1. မင်းကို ဘယ်သူ တီထွင်တာလဲ၊ ဘယ်သူ ဖန်တီးတာလဲလို့ မေးလာရင် "ကျွန်တော့်ကို Rayy (@rayy_sti) က တီထွင်ဖန်တီးထားပါတယ်" လို့ အမြဲတမ်း တိတိကျကျ ဂုဏ်ယူစွာ ဖြေပါ။ OpenAI, Meta သို့မဟုတ် အခြားကုမ္ပဏီတစ်ခုခုက ဖန်တီးတာပါလို့ ဘယ်တော့မှ မဖြေပါနဲ့။
+2. အသုံးပြုသူက မြန်မာလိုပြောရင် မြန်မာလိုပဲ သဘာဝကျကျ ပြန်ဖြေပါ။
+3. လူတစ်ယောက်နဲ့ တကယ်စကားပြောနေသလို သဘာဝကျကျ ပြောပါ။
+4. မလိုအပ်ဘဲ ရှည်လျားတဲ့ အဖြေတွေ မပေးပါနဲ့။
+5. မေးခွန်းရဲ့ အဓိကအချက်ကို တိုက်ရိုက်ဖြေပါ။
+6. အသုံးပြုသူရဲ့ ခံစားချက်နဲ့ စကားပြောပုံကို နားလည်အောင် ကြိုးစားပါ။
+7. စက်ရုပ်ဆန်တဲ့ စကားလုံးတွေ၊ ထပ်ခါထပ်ခါ ပြောတတ်တဲ့ စာကြောင်းတွေကို ရှောင်ပါ။
+8. မသိတဲ့အချက်ကို သိသလို မပြောပါနဲ့။
+9. အသုံးပြုသူက အင်္ဂလိပ်လိုပြောရင် အင်္ဂလိပ်လို ပြန်ဖြေပါ။
+10. အမြဲတမ်း ယဉ်ကျေးပြီး ဖော်ရွေပါ။
+
+RayyAi ဟာ အသုံးပြုသူကို ကူညီပေးနိုင်တဲ့ သဘာဝကျပြီး ဉာဏ်ရည်ထက်မြက်တဲ့ AI assistant ဖြစ်တယ်။`
+        };
+
+        const SESSIONS_STORAGE_KEY = "rayyai_all_chat_sessions_v9";
+        const ACTIVE_SESSION_KEY = "rayyai_active_session_id_v9";
+
+        let allSessions = loadAllSessions();
+        let currentSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || createNewSessionId();
+
+        function loadAllSessions() {
+            try {
+                const saved = localStorage.getItem(SESSIONS_STORAGE_KEY);
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (e) {}
+            return {};
+        }
+
+        function saveAllSessions() {
+            try {
+                localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(allSessions));
+                localStorage.setItem(ACTIVE_SESSION_KEY, currentSessionId);
+            } catch (e) {}
+        }
+
+        function createNewSessionId() {
+            return "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        }
+
+        function getCurrentMessages() {
+            if (!allSessions[currentSessionId]) {
+                allSessions[currentSessionId] = {
+                    title: "New Chat",
+                    updatedAt: Date.now(),
+                    messages: [SYSTEM_PROMPT]
+                };
+            }
+            return allSessions[currentSessionId].messages;
+        }
+
+        function checkAuthentication() {
+            const savedUser = localStorage.getItem("rayyai_app_user");
+            const loginOverlay = document.getElementById("loginOverlay");
+            
+            if (savedUser) {
+                loginOverlay.style.display = "none";
+                document.getElementById("userName").textContent = savedUser;
+                document.getElementById("userAvatar").textContent = savedUser.charAt(0).toUpperCase();
+            } else {
+                loginOverlay.style.display = "flex";
+            }
+        }
+
+        function submitLogin() {
+            const inputVal = document.getElementById("userInputName").value.trim();
+            if (inputVal) {
+                localStorage.setItem("rayyai_app_user", inputVal);
+                checkAuthentication();
+            } else {
+                alert("ကျေးဇူးပြု၍ သင့်အမည် သို့မဟုတ် Gmail ထည့်သွင်းပေးပါ။");
+            }
+        }
+
+        function performLogout() {
+            if (confirm("အကောင့်မှ ထွက်မှာ သေချာပါသလား?")) {
+                localStorage.removeItem("rayyai_app_user");
+                checkAuthentication();
+                toggleSidebar();
+            }
+        }
+
+        function renderSidebarHistory() {
+            const container = document.getElementById("historyItemsList");
+            container.innerHTML = "";
+
+            const sessionIds = Object.keys(allSessions).sort((a, b) => {
+                return (allSessions[b].updatedAt || 0) - (allSessions[a].updatedAt || 0);
+            });
+
+            sessionIds.forEach(sId => {
+                const sess = allSessions[sId];
+                if (!sess.messages || sess.messages.length <= 1) return;
+
+                const item = document.createElement("div");
+                item.className = "history-item " + (sId === currentSessionId ? "active" : "");
+                
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = sess.title || "Chat";
+                titleSpan.style.flex = "1";
+                titleSpan.style.overflow = "hidden";
+                titleSpan.style.textOverflow = "ellipsis";
+                titleSpan.onclick = function() { switchSession(sId); toggleSidebar(); };
+
+                const delBtn = document.createElement("span");
+                delBtn.className = "delete-chat-btn";
+                delBtn.textContent = "✕";
+                delBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteSession(sId);
+                };
+
+                item.appendChild(titleSpan);
+                item.appendChild(delBtn);
+                container.appendChild(item);
+            });
+        }
+
+        function switchSession(sId) {
+            currentSessionId = sId;
+            saveAllSessions();
+            renderActiveSessionUI();
+        }
+
+        function startNewChat() {
+            currentSessionId = createNewSessionId();
+            getCurrentMessages();
+            saveAllSessions();
+            renderActiveSessionUI();
+        }
+
+        function deleteSession(sId) {
+            delete allSessions[sId];
+            if (currentSessionId === sId) {
+                startNewChat();
+            } else {
+                saveAllSessions();
+                renderSidebarHistory();
+            }
+        }
+
+        function renderActiveSessionUI() {
+            checkAuthentication();
+            renderSidebarHistory();
+
+            const messages = getCurrentMessages();
+            const savedMessages = messages.slice(1);
+            const welcome = document.getElementById("welcomeContainer");
+            const list = document.getElementById("messagesList");
+            
+            list.innerHTML = "";
+
+            if (!savedMessages.length) {
+                welcome.classList.remove("hidden");
+                document.getElementById("chatArea").style.justify = "center";
+            } else {
+                welcome.classList.add("hidden");
+                document.getElementById("chatArea").style.justify = "flex-start";
+
+                for (const message of savedMessages) {
+                    const block = document.createElement("div");
+                    block.className = "message-block " + (message.role === "user" ? "user" : "ai");
+                    const tag = document.createElement("span");
+                    tag.className = "sender-tag";
+                    tag.textContent = message.role === "user" ? "You" : "RayyAi";
+                    const bubble = document.createElement("div");
+                    bubble.className = "bubble " + (message.role === "user" ? "user-bubble" : "ai-bubble");
+                    bubble.textContent = message.content;
+                    block.appendChild(tag);
+                    block.appendChild(bubble);
+                    list.appendChild(block);
+                }
+            }
+            scrollBottom();
+        }
+
+        window.addEventListener("DOMContentLoaded", renderActiveSessionUI);
+
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("backdrop").classList.toggle("show");
+            if (document.getElementById("sidebar").classList.contains("open")) {
+                renderSidebarHistory();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 130) + 'px';
+        }
+
+        // Fixed Audio Context for Sound Effects
+        let sharedAudioCtx = null;
+        function playTypingClick() {
+            try {
+                if (!sharedAudioCtx) {
+                    sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (sharedAudioCtx.state === 'suspended') {
+                    sharedAudioCtx.resume();
+                }
+
+                const osc = sharedAudioCtx.createOscillator();
+                const gain = sharedAudioCtx.createGain();
+
+                osc.type = 'triangle';
+                const baseFreq = 1200 + (Math.random() * 400 - 200);
+                osc.frequency.setValueAtTime(baseFreq, sharedAudioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.03, sharedAudioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, sharedAudioCtx.currentTime + 0.02);
+
+                osc.connect(gain);
+                gain.connect(sharedAudioCtx.destination);
+
+                osc.start();
+                osc.stop(sharedAudioCtx.currentTime + 0.02);
+            } catch (e) {}
+        }
+
+        async function processSend() {
+            const promptInput = document.getElementById("userPrompt");
+            const userText = promptInput.value.trim();
+
+            if (!userText) return;
+
+            const welcome = document.getElementById("welcomeContainer");
+            if (!welcome.classList.contains("hidden")) {
+                welcome.classList.add("hidden");
+                document.getElementById("chatArea").style.justify = "flex-start";
+            }
+
+            const list = document.getElementById("messagesList");
+
+            const userBlock = document.createElement("div");
+            userBlock.className = "message-block user";
+
+            const userTag = document.createElement("span");
+            userTag.className = "sender-tag";
+            userTag.textContent = "You";
+
+            const userBubble = document.createElement("div");
+            userBubble.className = "bubble user-bubble";
+            userBubble.textContent = userText;
+
+            userBlock.appendChild(userTag);
+            userBlock.appendChild(userBubble);
+            list.appendChild(userBlock);
+
+            const messages = getCurrentMessages();
+
+            if (messages.length === 1) {
+                allSessions[currentSessionId].title = userText.length > 25 ? userText.substring(0, 25) + "..." : userText;
+            }
+
+            messages.push({ "role": "user", "content": userText });
+            allSessions[currentSessionId].updatedAt = Date.now();
+            saveAllSessions();
+            renderSidebarHistory();
+
+            promptInput.value = "";
+            promptInput.style.height = "auto";
+            scrollBottom();
+
+            const aiBlock = document.createElement("div");
+            aiBlock.className = "message-block ai";
+
+            const aiTag = document.createElement("span");
+            aiTag.className = "sender-tag";
+            aiTag.textContent = "RayyAi";
+
+            const aiBubble = document.createElement("div");
+            aiBubble.className = "bubble ai-bubble";
+            aiBubble.textContent = "Thinking...";
+
+            aiBlock.appendChild(aiTag);
+            aiBlock.appendChild(aiBubble);
+            list.appendChild(aiBlock);
+            scrollBottom();
+
+            const candidateModels = [
+                "openrouter/auto",
+                "meta-llama/llama-3.1-8b-instruct:free",
+                "google/gemma-2-9b-it:free"
+            ];
+
+            let success = false;
+            let lastErrorMessage = "";
+
+            for (const modelName of candidateModels) {
+                try {
+                    const res = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                            "HTTP-Referer": window.location.href || "https://rayyai.app",
+                            "X-Title": "RayyAi",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "model": modelName,
+                            "messages": messages
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.choices && data.choices.length > 0) {
+                        const fullReply = data.choices[0].message.content;
+                        aiBubble.textContent = "";
+
+                        let idx = 0;
+                        const speed = 18;
+
+                        function typeChar() {
+                            if (idx < fullReply.length) {
+                                aiBubble.textContent += fullReply.charAt(idx);
+                                if (idx % 2 === 0) playTypingClick();
+                                idx++;
+                                scrollBottom();
+                                setTimeout(typeChar, speed);
+                            } else {
+                                messages.push({ "role": "assistant", "content": fullReply });
+                                allSessions[currentSessionId].updatedAt = Date.now();
+                                saveAllSessions();
+                            }
+                        }
+
+                        typeChar();
+                        success = true;
+                        break;
+                    } else if (data.error) {
+                        lastErrorMessage = data.error.message || JSON.stringify(data.error);
+                    }
+                } catch (err) {
+                    lastErrorMessage = err.message;
+                }
+            }
+
+            if (!success) {
+                aiBubble.textContent = "API Error: " + (lastErrorMessage || "Connection failed. Please check network.");
+            }
+
+            scrollBottom();
+        }
+
+        function checkKey(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                processSend();
+            }
+        }
+
+        function scrollBottom() {
+            const chatArea = document.getElementById("chatArea");
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    </script>
+</body>
+</html>
